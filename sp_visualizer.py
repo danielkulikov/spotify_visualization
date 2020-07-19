@@ -21,8 +21,9 @@ class sp_visualizer():
     """
     def __init__(self):
         self.artist_network = None
+        self.cmap = cm.get_cmap('Blues', 12)
 
-    def related_artists_graph(self, artist_id, depth=1, cmap=None):
+    def related_artists_graph(self, artist_id, artist_name="", depth=1, cmap=None):
         """
         Constructs an interactive similarity graph in pyvis representing
         the related artists feature in the Spotify API (to a depth of n).
@@ -33,7 +34,7 @@ class sp_visualizer():
         popularities = []
         
         # create network
-        related_artists_net = Network(height="1000px", width="100%", bgcolor="#222222", font_color="white")
+        related_artists_net = Network(height="800px", width="800px", bgcolor="#222222", font_color="white")
         
         # get a list of names and ids
         related = sp.artist_related_artists(artist)['artists']
@@ -96,9 +97,19 @@ class sp_visualizer():
         for i in range(len(nodes)):
             pop = popularities[i]
             value = self.get_node_size(pop.item())
+            
+            x = None
+            y = None
+            
+            color=self.get_node_colour(pop/100)
+            
+            if (nodes[i] == artist_name):
+                x, y = 400, 400
+                color = "#FFFFFF"
+                
             related_artists_net.add_node(nodes[i], value=value, \
-                color=self.get_node_colour(pop/100), \
-                image = "https://i.ytimg.com/vi/cSblrT8hBDc/maxresdefault.jpg")
+                color=color, \
+                image = "https://i.ytimg.com/vi/cSblrT8hBDc/maxresdefault.jpg", x=x, y=y)
         
         # add edges to the graph
         for e in edge_data:
@@ -115,7 +126,7 @@ class sp_visualizer():
          #   node["image"] = "https://i.ytimg.com/vi/cSblrT8hBDc/maxresdefault.jpg"
             
         # show graph
-        related_artists_net.show("aaa.html")
+        related_artists_net.show("artist_graph.html")
     
     def visualize_playlist(self, playlist_id):
         """
@@ -129,15 +140,14 @@ class sp_visualizer():
         Computes a function for similarity based on its position in the 
         related artists list (given some artist).
         """
-        return (x+1)**1.5
-    
+        return (x+1)**(0.3)    
     def get_node_colour(self, x):
         """
         Colour map for artist popularity values.
         """
-        c_m = cm.get_cmap('Blues', 12)
-        c_m = colors.rgb2hex(c_m(x)[:, :3][0])
-        return c_m
+        c_m = self.cmap
+        return colors.rgb2hex(c_m(x)[:, :3][0])
+      
     
     def get_node_size(self, x):
         """
@@ -173,5 +183,6 @@ if __name__ == "__main__":
     
     # artist URI - e.g. I use 
     artist = 'spotify:artist:2YZyLoL8N0Wb9xBt1NhZWg'
+    artist_name = sp.artist(artist)['name']
     sp_vis = sp_visualizer()
-    sp_vis.related_artists_graph(artist)
+    sp_vis.related_artists_graph(artist, artist_name=artist_name)
