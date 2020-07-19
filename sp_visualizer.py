@@ -135,6 +135,10 @@ class sp_visualizer():
         """
         pass
     
+    def get_genre_breakdown(self, playlist_id):
+        pass
+    
+    
     def weight(self, x):
         """
         Computes a function for similarity based on its position in the 
@@ -174,8 +178,8 @@ def read_csv_data(csv):
  
 if __name__ == "__main__":
     # client ids
-    cid ="607e8d3ba9664c3f8da9dc813e020779" 
-    secret = "11912db189014b7c948928cc3c85cb0d"
+    cid ="client id here" 
+    secret = "secret id here"
     
     # authenticate  requests
     client_credentials_manager = SpotifyClientCredentials(client_id=cid, client_secret=secret) 
