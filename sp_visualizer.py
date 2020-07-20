@@ -10,10 +10,8 @@ Doing some data visualization using spotipy (a library for the Spotify API).
 import spotipy 
 import numpy as np
 import pandas as pd
-import seaborn as sb
 from matplotlib import cm
 from matplotlib import colors
-import matplotlib.pyplot as plt
 from pyvis.network import Network
 from spotipy.oauth2 import SpotifyClientCredentials
 
@@ -61,8 +59,7 @@ class sp_visualizer():
                 nodes.append(related_artists[j]['name'])
                 # add to nodes and pops
                 popularities.append(related_artists[j]['popularity'])
-       
-          
+ 
         # get unique nodes
         nodes, popularities = np.asarray(nodes), np.asarray(popularities)
         popularities = popularities.reshape((popularities.shape[0], 1))
@@ -158,10 +155,13 @@ class sp_visualizer():
         # get the top n genres in the playlist, along with their counts
         top_n_genres, counts = self.get_genre_breakdown(tracks_data, 10)
         
-        # plot valence vs. energy with plotly - DASH to make it interactive
+        # get valence, energy for plotting purposes (in the DASH app)
+        valence, energy = tracks_data[:, 9], tracks_data[:, 8]
         
-        # recommend some artist or songs using recommendation algorithm :~)
+        # recommend some artist or songs using matrix factorization (homebrew)
             # TO-DO
+        
+        # use to dash to visualize
         
         
     def get_genre_breakdown(self, tracks_data, n):
@@ -314,7 +314,8 @@ def get_playlist_tracks(username,playlist_id):
  
 if __name__ == "__main__":
     # set up spotify client and authenticate
-    
+    cid ="607e8d3ba9664c3f8da9dc813e020779" 
+    secret = "11912db189014b7c948928cc3c85cb0d"
     client_credentials_manager = SpotifyClientCredentials(client_id=cid, client_secret=secret) 
     sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
     
