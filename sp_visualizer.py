@@ -14,6 +14,11 @@ from matplotlib import cm
 from matplotlib import colors
 from pyvis.network import Network
 from spotipy.oauth2 import SpotifyClientCredentials
+import bokeh.plotting as bp
+from bokeh.models import HoverTool 
+from bokeh.plotting import figure, output_file, show, ColumnDataSource, curdoc
+from bokeh.models import Label, Text, Paragraph
+from bokeh.layouts import column, row
 
 class sp_visualizer():
     """
@@ -157,11 +162,43 @@ class sp_visualizer():
         
         # get valence, energy for plotting purposes (in the DASH app)
         valence, energy = tracks_data[:, 9], tracks_data[:, 8]
+        self.plot_valence_energy(tracks_data[:, [9,8,1,2,3]])
+        
+        # what else can we do?
         
         # recommend some artist or songs using matrix factorization (homebrew)
-            # TO-DO
+        # the implicit approach doesn't really work because we don't have any
+        # relevant use data (e.g. # of clicks on song)
+        # so, we just use a hacky explicit MF where we take 1 to be 5 (the max rating)
+        # aka our spotify playlist input data will just be a matrix of 5s and 0s
+        recommended_songs = []
         
-        # use to dash to visualize
+        # use dash to visualize
+    
+    def plot_valence_energy(self, data):
+
+        # output to static HTML file
+        output_file("square.html")
+        
+        #text = Paragraph(text="""The valence (positivity) vs. energy of the tracks in your playlist are plotted here.""",
+       #                  width=200, height=30)
+        
+        v = data[:, 0].astype(np.float)
+        e = data[:, 1].astype(np.float)
+        
+        curdoc().theme = 'dark_minimal'
+        
+        data = {'valence': v, 'energy': e, 'track': data[:,2], 'album': data[:,3], 'artist': data[:,4]}
+        
+        source = ColumnDataSource(data=data)
+        TOOLTIPS = [("track", "@track by @artist"),("album", "@album"),("(valence, energy)", "(@valence, @energy)"), ]
+
+        
+        p = figure(plot_width=400, plot_height=400, tooltips=TOOLTIPS, title="valence vs. energy for playlist tracks", sizing_mode="stretch_both")
+        #sizing_mode="stretch_both"
+        p.scatter('valence', 'energy', size=10, source=source, color="#fbf7f5")
+ 
+        show(p)
         
         
     def get_genre_breakdown(self, tracks_data, n):
@@ -327,3 +364,5 @@ if __name__ == "__main__":
     sp_vis = sp_visualizer(sp)
     #sp_vis.related_artists_graph(artist, artist_name=artist_name)
     sp_vis.visualize_playlist('dkulikov', "6Mj2GTsBFWtSygUOl7ijws")
+    
+    #sp_vis.related_artists_graph(artist, artist_name)
